@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useExpenses } from "@/context";
 import {
@@ -9,18 +9,13 @@ import {
   MonthlyTrendChart,
   RecentExpenses,
 } from "@/components/dashboard";
+import { ExportModal } from "@/components/export";
 import { Button } from "@/components/ui";
 import { formatCurrency } from "@/lib/utils";
-import { exportToCSV } from "@/lib/utils";
 
 export default function DashboardPage() {
   const { expenses, summary, isLoading } = useExpenses();
-
-  const handleExport = () => {
-    if (expenses.length > 0) {
-      exportToCSV(expenses);
-    }
-  };
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -54,7 +49,7 @@ export default function DashboardPage() {
         <div className="flex gap-3">
           <Button
             variant="secondary"
-            onClick={handleExport}
+            onClick={() => setIsExportModalOpen(true)}
             disabled={expenses.length === 0}
           >
             <svg
@@ -70,7 +65,7 @@ export default function DashboardPage() {
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
               />
             </svg>
-            Export CSV
+            Export Data
           </Button>
           <Link href="/add">
             <Button>
@@ -202,6 +197,13 @@ export default function DashboardPage() {
 
       {/* Recent Expenses */}
       <RecentExpenses expenses={expenses} />
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        expenses={expenses}
+      />
     </div>
   );
 }
