@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useExpenses } from "@/context";
 import {
@@ -9,18 +9,13 @@ import {
   MonthlyTrendChart,
   RecentExpenses,
 } from "@/components/dashboard";
+import { CloudExportHub } from "@/components/cloud-export";
 import { Button } from "@/components/ui";
 import { formatCurrency } from "@/lib/utils";
-import { exportToCSV } from "@/lib/utils";
 
 export default function DashboardPage() {
   const { expenses, summary, isLoading } = useExpenses();
-
-  const handleExport = () => {
-    if (expenses.length > 0) {
-      exportToCSV(expenses);
-    }
-  };
+  const [isCloudExportOpen, setIsCloudExportOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -54,11 +49,12 @@ export default function DashboardPage() {
         <div className="flex gap-3">
           <Button
             variant="secondary"
-            onClick={handleExport}
+            onClick={() => setIsCloudExportOpen(true)}
             disabled={expenses.length === 0}
+            className="bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200 hover:from-indigo-100 hover:to-purple-100"
           >
             <svg
-              className="w-4 h-4 mr-2"
+              className="w-4 h-4 mr-2 text-indigo-600"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -67,10 +63,12 @@ export default function DashboardPage() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
               />
             </svg>
-            Export CSV
+            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent font-semibold">
+              Cloud Export
+            </span>
           </Button>
           <Link href="/add">
             <Button>
@@ -202,6 +200,13 @@ export default function DashboardPage() {
 
       {/* Recent Expenses */}
       <RecentExpenses expenses={expenses} />
+
+      {/* Cloud Export Hub */}
+      <CloudExportHub
+        isOpen={isCloudExportOpen}
+        onClose={() => setIsCloudExportOpen(false)}
+        expenses={expenses}
+      />
     </div>
   );
 }
